@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Cosmic Tracklists</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="/public/tailwind.css" rel="stylesheet" />
+    <script src="/public/htmx.min.js"></script>
+  </head>
+  <body>
+    <div class="flex h-screen flex-col">
+      <nav id="nav">{% include "components/header.html" %}</nav>
+      <div id="main" class="flex flex-1 bg-indigo-900">
+        {% block content %} {% endblock content %}
+      </div>
+      <footer id="footer">{% include "components/footer.html" %}</footer>
+    </div>
+  </body>
+</html>

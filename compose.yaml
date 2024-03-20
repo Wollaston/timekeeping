@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  surrealdb:
+    user: root
+    container_name: surrealdb
+    image: surrealdb/surrealdb:latest
+    restart: always
+    command: start --auth --user root --pass root
+    ports:
+      - 9000:8000
