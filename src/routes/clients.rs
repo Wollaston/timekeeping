@@ -35,8 +35,8 @@ struct Record {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Client {
-    created_date: DateTime<Utc>,
-    modified_date: DateTime<Utc>,
+    created_at: DateTime<Utc>,
+    modified_at: DateTime<Utc>,
     client_details: ClientForCreate,
 }
 
@@ -77,17 +77,20 @@ async fn create_new_client(
     State(state): State<AppState>,
     Form(client): Form<ClientForCreate>,
 ) -> impl IntoResponse {
-    let client: Vec<Record> = state
-        .db
-        .create(CLIENTS)
-        .content(Client {
-            created_date: Utc::now(),
-            modified_date: Utc::now(),
-            client_details: client,
-        })
-        .await
-        .unwrap();
-    dbg!(&client);
+    // Run some queries
+    let sql = "
+        BEGIN TRANSACTION;
+
+        LET $client = CREATE clients SET created_at = time::now(), modified_at = time::now(), client_details = $data;
+
+        RETURN $client;
+
+        COMMIT TRANSACTION;";
+
+    let result = state.db.query(sql).bind(("data", client)).await.unwrap();
+
+    dbg!(result);
+
     CreatedClientTemplate
 }
 
