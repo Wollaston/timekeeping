@@ -21,7 +21,7 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/", get(clients_handler))
         .route("/create", get(new_client_form).post(create_new_client))
-        .route("/read/:id", get(read))
+        .route("/:id", get(read))
         .route("/update/:id", post(update))
         .route("/list", get(list))
         .route("/delete/:id", post(delete))
@@ -51,6 +51,7 @@ pub struct ClientForCreate {
     city: String,
     state: String,
     postal_code: String,
+    notes: String,
 }
 
 #[derive(Template)]
@@ -95,12 +96,15 @@ async fn create_new_client(
     CreatedClientTemplate
 }
 
-async fn read(
-    State(state): State<AppState>,
-    id: Path<String>,
-) -> Result<Json<Option<ClientForCreate>>, Error> {
-    let client = state.db.select((CLIENTS, &*id)).await?;
-    Ok(Json(client))
+#[derive(Template)]
+#[template(path = "clients/client_detail.html")]
+struct ClientDetailTemplate {
+    client: Client,
+}
+
+async fn read(State(state): State<AppState>, id: Path<String>) -> impl IntoResponse {
+    let client = state.db.select((CLIENTS, &*id)).await.unwrap().unwrap();
+    ClientDetailTemplate { client }
 }
 
 async fn update(
@@ -135,4 +139,12 @@ struct ClientCardTemplate {
 async fn list(State(state): State<AppState>) -> impl IntoResponse {
     let clients: Vec<Client> = state.db.select(CLIENTS).await.unwrap();
     ClientCardsTemplate { clients }
+}
+
+mod filters {
+    use chrono::{DateTime, Utc};
+    pub fn format_dt(s: &DateTime<Utc>) -> ::askama::Result<String> {
+        let dt = s.format("%Y-%m-%d %H:%M:%S").to_string();
+        Ok(dt)
+    }
 }
