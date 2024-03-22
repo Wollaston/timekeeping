@@ -35,6 +35,7 @@ struct Record {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Client {
+    id: Thing,
     created_at: DateTime<Utc>,
     modified_at: DateTime<Utc>,
     client_details: ClientForCreate,
@@ -119,7 +120,19 @@ async fn delete(
     Ok(Json(client))
 }
 
-async fn list(State(state): State<AppState>) -> Result<Json<Vec<Client>>, Error> {
-    let clients: Vec<Client> = state.db.select(CLIENTS).await?;
-    Ok(Json(clients))
+#[derive(Template)]
+#[template(path = "clients/client_cards.html")]
+struct ClientCardsTemplate {
+    clients: Vec<Client>,
+}
+
+#[derive(Template)]
+#[template(path = "clients/client_card.html")]
+struct ClientCardTemplate {
+    client: Client,
+}
+
+async fn list(State(state): State<AppState>) -> impl IntoResponse {
+    let clients: Vec<Client> = state.db.select(CLIENTS).await.unwrap();
+    ClientCardsTemplate { clients }
 }
