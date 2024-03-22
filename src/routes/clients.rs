@@ -20,7 +20,7 @@ const CLIENTS: &str = "clients";
 pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/", get(clients_handler))
-        .route("/create", post(create))
+        .route("/create", get(new_client_form).post(create_new_client))
         .route("/read/:id", get(read))
         .route("/update/:id", post(update))
         .route("/list", get(list))
@@ -32,7 +32,6 @@ struct Record {
     #[allow(dead_code)]
     id: Thing,
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Client {
@@ -63,10 +62,18 @@ async fn clients_handler() -> impl IntoResponse {
 }
 
 #[derive(Template)]
+#[template(path = "clients/new_client_form.html")]
+struct NewClientFormTemplate;
+
+async fn new_client_form() -> impl IntoResponse {
+    NewClientFormTemplate
+}
+
+#[derive(Template)]
 #[template(path = "clients/created_client.html")]
 struct CreatedClientTemplate;
 
-pub async fn create(
+async fn create_new_client(
     State(state): State<AppState>,
     Form(client): Form<ClientForCreate>,
 ) -> impl IntoResponse {
@@ -78,12 +85,13 @@ pub async fn create(
             modified_date: Utc::now(),
             client_details: client,
         })
-        .await.unwrap();
+        .await
+        .unwrap();
     dbg!(&client);
     CreatedClientTemplate
 }
 
-pub async fn read(
+async fn read(
     State(state): State<AppState>,
     id: Path<String>,
 ) -> Result<Json<Option<ClientForCreate>>, Error> {
@@ -91,7 +99,7 @@ pub async fn read(
     Ok(Json(client))
 }
 
-pub async fn update(
+async fn update(
     State(state): State<AppState>,
     id: Path<String>,
     Json(client): Json<ClientForCreate>,
@@ -100,7 +108,7 @@ pub async fn update(
     Ok(Json(client))
 }
 
-pub async fn delete(
+async fn delete(
     State(state): State<AppState>,
     id: Path<String>,
 ) -> Result<Json<Option<ClientForCreate>>, Error> {
@@ -108,7 +116,7 @@ pub async fn delete(
     Ok(Json(client))
 }
 
-pub async fn list(State(state): State<AppState>) -> Result<Json<Vec<Client>>, Error> {
+async fn list(State(state): State<AppState>) -> Result<Json<Vec<Client>>, Error> {
     let clients: Vec<Client> = state.db.select(CLIENTS).await?;
     Ok(Json(clients))
 }
