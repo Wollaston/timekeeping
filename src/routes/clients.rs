@@ -21,10 +21,9 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/", get(clients_handler))
         .route("/create", get(new_client_form).post(create_new_client))
-        .route("/:id", get(read))
+        .route("/:id", get(read).delete(delete))
         .route("/update/:id", post(update))
         .route("/list", get(list))
-        .route("/delete/:id", post(delete))
 }
 
 #[derive(Debug, Deserialize)]
@@ -116,12 +115,18 @@ async fn update(
     Ok(Json(client))
 }
 
-async fn delete(
-    State(state): State<AppState>,
-    id: Path<String>,
-) -> Result<Json<Option<ClientForCreate>>, Error> {
-    let client = state.db.delete((CLIENTS, &*id)).await?;
-    Ok(Json(client))
+#[derive(Template)]
+#[template(path = "clients/client_deleted.html")]
+struct DeletedClientTemplate {
+    client_name: String,
+}
+
+async fn delete(State(state): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
+    let result: Option<Client> = state.db.delete((CLIENTS, id)).await.unwrap();
+
+    let client_name = result.unwrap().client_details.client_name;
+
+    DeletedClientTemplate { client_name }
 }
 
 #[derive(Template)]
