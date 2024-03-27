@@ -1,0 +1,9 @@
+{% extends "index.html" %} {% block content %}
+<div class="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
+  <ul>
+    {% for timekeeper in timekeepers %}
+    <li>{% include "timekeepers/timekeeper_card.html" %}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock content %}
