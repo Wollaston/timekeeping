@@ -141,9 +141,16 @@ struct ClientCardTemplate {
     client: Client,
 }
 
+#[derive(Template)]
+#[template(path = "clients/no_clients.html")]
+struct NoClientsTemplate;
+
 async fn list(State(state): State<AppState>) -> impl IntoResponse {
     let clients: Vec<Client> = state.db.select(CLIENTS).await.unwrap();
-    ClientCardsTemplate { clients }
+    match clients.len() {
+        0 => NoClientsTemplate.into_response(),
+        _ => ClientCardsTemplate { clients }.into_response(),
+    }
 }
 
 mod filters {
