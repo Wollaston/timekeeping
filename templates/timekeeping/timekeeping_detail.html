@@ -1,0 +1,46 @@
+{% extends "index.html" %} {% block content %}
+<div id="timekeeping"
+  class="bg-slate-50 rounded-md m-3 py-4 px-4 mx-auto w-full max-w-screen-xl sm:py-16 lg:px-6"
+>
+  <div class="px-4 sm:px-0">
+    <h3 class="text-base font-semibold leading-7 text-gray-900">
+      Timekeeping Details
+    </h3>
+  </div>
+  <div class="mt-6 border-t border-gray-100">
+    <dl class="divide-y divide-gray-100">
+      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+        <dt class="text-sm font-medium leading-6 text-gray-900">Timekeeper Name</dt>
+        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+          {{data.timekeeper_name}}<br />(ID: {{data.timekeeper_id.id}})
+        </dd>
+      </div>
+      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+        <dt class="text-sm font-medium leading-6 text-gray-900">Client</dt>
+        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+          {{data.client_name}}<br />(ID: {{data.client_id.id}})
+        </dd>
+      </div>
+      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+        <dt class="text-sm font-medium leading-6 text-gray-900">
+          Timekeeping Entry 
+        </dt>
+        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+          {{data.timekeeping_notes}}<br />(ID: {{data.timekeeping_id.id}})
+        </dd>
+      </div>
+      <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+        <dt class="text-sm font-medium leading-6 text-gray-900">Metadata</dt>
+        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+          Created: {{data.created_at|format_dt}}<br />Last Modified:
+          {{data.modified_at|format_dt}}
+        </dd>
+      </div>
+    </dl>
+    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+      <button hx-trigger="click"  hx-target="#timekeeping" hx-swap="outerHTML" hx-confirm="Are you sure?" hx-delete="/timekeeping/{{data.timekeeping_id.id}}" class="w-min px-3 py-2 text-sm font-medium text-center text-white bg-red-500 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-slate-300"
+>Delete Timekeeping</button>
+    </div>
+  </div>
+</div>
+{% endblock content %}

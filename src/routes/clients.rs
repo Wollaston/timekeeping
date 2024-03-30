@@ -37,7 +37,7 @@ pub struct Client {
     id: Thing,
     created_at: DateTime<Utc>,
     modified_at: DateTime<Utc>,
-    client_details: ClientForCreate,
+    details: ClientForCreate,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -82,7 +82,7 @@ async fn create_new_client(
     let sql = "
         BEGIN TRANSACTION;
 
-        LET $client = CREATE clients SET created_at = time::now(), modified_at = time::now(), client_details = $data;
+        LET $client = CREATE clients SET created_at = time::now(), modified_at = time::now(), details = $data;
 
         RETURN $client;
 
@@ -124,7 +124,7 @@ struct DeletedClientTemplate {
 async fn delete(State(state): State<AppState>, Path(id): Path<String>) -> impl IntoResponse {
     let result: Option<Client> = state.db.delete((CLIENTS, id)).await.unwrap();
 
-    let client_name = result.unwrap().client_details.client_name;
+    let client_name = result.unwrap().details.client_name;
 
     DeletedClientTemplate { client_name }
 }
